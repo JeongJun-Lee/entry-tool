@@ -72,8 +72,7 @@ const Export = (props) => {
                 <a role="button" className={theme.btn_close} onClick={close} />
             </div>
             <div className={theme.body}>
-                <span>{CommonUtils.getLang('Menus.list_export_notice1')}</span>
-                <span>{CommonUtils.getLang('Menus.list_export_notice2')}</span>
+                <span>{CommonUtils.getLang('Menus.list_export_notice')}</span>
                 <textarea className={theme.export_content} disabled value={textData} />
                 <div className={theme.btn_wrap}>
                     <a ref={clipRef} role="button">
@@ -82,9 +81,9 @@ const Export = (props) => {
                     <a role="button" onClick={handleExcelDownload}>
                         {CommonUtils.getLang('Buttons.export_to_excel')}
                     </a>
-                    <a role="button" onClick={handleConvertTable}>
+                    {/* <a role="button" onClick={handleConvertTable}>
                         {CommonUtils.getLang('Buttons.convert_table')}
-                    </a>
+                    </a> */}
                 </div>
             </div>
         </div>
