@@ -55,7 +55,8 @@ const Legend = ({ maximumSelectionLength, showSelectAll, checkBox }) => {
 
     const getTitle = () =>
         checkBox && selectedLegend.length > 1
-            ? `${fields[selectedLegend[0]]} 외 ${selectedLegend.length - 1}건`
+            ? `${fields[selectedLegend[0]]} ${CommonUtils.getLang('DataAnalytics.besides')} 
+                ${selectedLegend.length - 1} ${CommonUtils.getLang('DataAnalytics.pieces')}`
             : fields[selectedLegend[0]] || titleLabel;
 
     const handleSelectDropdown = (value) => {
