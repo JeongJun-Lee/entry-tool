@@ -51,7 +51,7 @@ const TableSelectItem = ({ theme, item, upload, openModal, dropdownState }) => {
     const [dropdown, setDropdown] = dropdownState;
     const toggleDropDown = (dropdown) => setDropdown(dropdown);
     const { summary, rows = 0, name, fields = [] } = item;
-    const items = _map([{ name: '기본' }, ...item.otherTypes], ({ name }, index) => [name, index]);
+    const items = _map([{ name: CommonUtils.getLang('DataAnalytics.basic_type') }, ...item.otherTypes], ({ name }, index) => [name, index]);
     if (upload) {
         return (
             <>
