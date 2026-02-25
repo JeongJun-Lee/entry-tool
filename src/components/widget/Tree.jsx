@@ -23,7 +23,7 @@ const Tree = (props) => {
                     <div className={theme.body}>
                         <div className={theme.tree_container}>
                             <div className={theme.tree}>
-                                <div dangerouslySetInnerHTML={{ __html: treeHtml }} />
+                                <ul dangerouslySetInnerHTML={{ __html: treeHtml }} />
                             </div>
                         </div>
                     </div>
@@ -35,37 +35,60 @@ const Tree = (props) => {
 
 export default Tree;
 
-const drawTree = ({ graphData, fields, valueMap }) => {
+const drawTree = (source, labelPrefix = '') => {
+    const { graphData, fields, valueMap, yes = 'yes', no = 'no' } = source;
     const { splitColumn, splitValue, distribution, left, right } = graphData;
     let feature = null;
     let prediction = null;
-    if (splitColumn !== null && splitColumn !== undefined) {
-        feature = fields[splitColumn + 1];
+    if (graphData.featureName !== undefined) {
+        feature = graphData.featureName;
+    } else if (splitColumn !== null && splitColumn !== undefined) {
+        feature = fields[splitColumn + 1] || fields[splitColumn];
     }
-    if (distribution !== null && distribution !== undefined) {
-        const arr =
-            (distribution.data ? Array.from(distribution.data[0]) : distribution?.[0]) || [];
-        const sorted = [...arr].sort((a, b) => b - a);
-        const maxRowIndex = arr.indexOf(sorted[0]);
-        prediction = valueMap[maxRowIndex + 1];
+    if (graphData.predictionLabel !== undefined) {
+        prediction = graphData.predictionLabel;
+    } else if (distribution !== null && distribution !== undefined) {
+        let d = distribution.data ? distribution.data : distribution;
+        while (Array.isArray(d) && d.length === 1) {
+            d = d[0];
+        }
+        if (typeof d === 'object' && d !== null) {
+            let bestClass = -1;
+            let maxProb = -Infinity;
+            for (const [k, v] of Object.entries(d)) {
+                if (Number(v) > maxProb) {
+                    maxProb = Number(v);
+                    bestClass = Number(k);
+                }
+            }
+            if (bestClass !== -1) {
+                let lbl = valueMap[bestClass + 1] !== undefined ? valueMap[bestClass + 1] : valueMap[bestClass];
+                if (lbl !== undefined && lbl !== null && lbl !== '') {
+                    prediction = lbl;
+                }
+            }
+        }
     }
-    // leaf
-    if (!left && !right) {
+
+    const isLeafNode = !left && !right || (Object.keys(left || {}).length === 0 && Object.keys(right || {}).length === 0);
+    let labelHtml = labelPrefix ? `<div class="label-box">${labelPrefix}</div>` : '';
+
+    if (isLeafNode) {
+        const predLabel = prediction !== undefined && prediction !== null ? prediction : 'Leaf';
         return [
-            '<ul>',
             '<li>',
+            labelHtml,
             '<a href="#">',
             '<b>',
-            prediction,
+            predLabel,
             '</b>',
             '</a>',
             '</li>',
-            '</ul>',
         ].join('');
     }
     return [
-        '<ul>',
         '<li>',
+        labelHtml,
         '<a href="#">',
         '<b>',
         feature,
@@ -74,16 +97,9 @@ const drawTree = ({ graphData, fields, valueMap }) => {
         '</b>',
         '</a>',
         '<ul>',
-        '<li>',
-        '<a href="#">yes</a>',
-        drawTree({ graphData: left, fields, valueMap }),
-        '</li>',
-        '<li>',
-        '<a href="#">no</a>',
-        drawTree({ graphData: right, fields, valueMap }),
-        '</li>',
+        drawTree({ graphData: left, fields, valueMap, yes, no }, yes),
+        drawTree({ graphData: right, fields, valueMap, yes, no }, no),
         '</ul>',
         '</li>',
-        '</ul>',
     ].join('');
 };
