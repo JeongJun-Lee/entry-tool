@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { openModal } from '@actions/popup';
 import { connect } from 'react-redux';
 import { CommonUtils } from '@utils/Common';
@@ -39,15 +39,28 @@ const DetailModal = ({ theme, info = {} }) => {
 
 const TableSelectItem = ({ theme, item, upload, openModal, dropdownState }) => {
     const [option, setOption] = useState(0);
+
+    useEffect(() => {
+        // 팝업이 다시 열릴 때 이전 선택값이 남지 않도록 초기화합니다.
+        item.selected = item.projectTable;
+        delete item.selectedSubtype;
+        setOption(0);
+    }, [item._id || item.id]);
+
     const handleSelect = (option) => {
         const [, index] = option;
         if (index) {
             item.selected = item.otherTypes[index - 1].projectTable;
+            item.selectedSubtype = item.otherTypes[index - 1];
         } else {
             item.selected = item.projectTable;
+            delete item.selectedSubtype;
         }
         setOption(index);
     };
+    if (!item.selected) {
+        item.selected = item.projectTable;
+    }
     const [dropdown, setDropdown] = dropdownState;
     const toggleDropDown = (dropdown) => setDropdown(dropdown);
     const { summary, rows = 0, name, fields = [] } = item;
