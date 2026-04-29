@@ -822,12 +822,13 @@
             color: #2c313d;
             letter-spacing: -0.5px;
             text-align: center;
-            white-space: nowrap;
-            line-height: 15px;
+            white-space: normal;
+            line-height: normal;
             span {
                 display: block;
                 font-size: 10px;
                 color: #555;
+                word-break: keep-all;
             }
         }
         a:before {
